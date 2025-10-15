@@ -1,28 +1,74 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <title>Kubernetes Manifest Generator</title>
-</head>
-<body>
-    <h1>Kubernetes Deployment Generator</h1>
-    <form action="/api/deployment/generate" method="POST">
-        <label>App Name:</label><br>
-        <input type="text" name="name" required><br><br>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Kubernetes YAML Generator</title>
+        <style>
+            body {
+                font-family: sans-serif;
+                margin: 40px;
+            }
+            form {
+                margin-bottom: 20px;
+            }
+            pre {
+                background: #f8f8f8;
+                padding: 15px;
+                border-radius: 8px;
+                white-space: pre-wrap;
+            }
+        </style>
+    </head>
+    <body>
+        <h2>🚀 Kubernetes Manifest Generator</h2>
+        <form id="deployForm">
+            <label>App Name:</label><br />
+            <input type="text" name="name" required /><br /><br />
 
-        <label>Image:</label><br>
-        <input type="text" name="image" required><br><br>
+            <label>Image:</label><br />
+            <input type="text" name="image" required /><br /><br />
 
-        <label>Replicas (optional):</label><br>
-        <input type="number" name="replicas"><br><br>
+            <label>Replicas:</label><br />
+            <input type="number" name="replicas" /><br /><br />
 
-        <label>Namespace (optional):</label><br>
-        <input type="text" name="namespace"><br><br>
+            <label>Namespace:</label><br />
+            <input type="text" name="namespace" /><br /><br />
 
-        <label>Ports (comma separated):</label><br>
-        <input type="text" name="ports"><br><br>
+            <label>Ports (comma separated):</label><br />
+            <input type="text" name="ports" /><br /><br />
 
-        <button type="submit" name="action" value="generate">Generate</button>
-        <!-- <button type="submit" name="action" value="print">Print</button> -->
-    </form>
-</body>
+            <button type="submit">Generate YAML</button>
+        </form>
+
+        <h3>Result:</h3>
+        <pre id="result">Waiting for input...</pre>
+
+        <script>
+            document
+                .getElementById("deployForm")
+                .addEventListener("submit", async function (e) {
+                    e.preventDefault();
+
+                    const formData = new FormData(e.target);
+                    const data = Object.fromEntries(formData.entries());
+
+                    // convert comma-separated ports to array
+                    if (data.ports) {
+                        data.ports = data.ports
+                            .split(",")
+                            .map((p) => parseInt(p.trim(), 10));
+                    }
+
+                    const response = await fetch("/api/deployment/generate", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(data),
+                    });
+
+                    const yamlText = await response.text();
+                    document.getElementById("result").textContent = yamlText;
+                });
+        </script>
+    </body>
 </html>

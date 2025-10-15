@@ -10,9 +10,17 @@ def generate(data):
     ports_input = data.get('ports')
     action = data.get('action') 
 
-    ports = [p.strip() for p in ports_input.split(",") if p.strip()] if ports_input else None
+    if isinstance(ports_input, str):
+        ports = [p.strip() for p in ports_input.split(",") if p.strip()]
+    elif isinstance(ports_input, list):
+        ports = [str(p).strip() for p in ports_input if str(p).strip()]
+    else:
+        ports = None
 
-    container_ports = [{"containerPort": int(p)} for p in ports] if ports else None
+    try:
+        container_ports = [{"containerPort": int(p)} for p in ports] if ports else None
+    except ValueError:
+        raise ValueError("Ports must be valid integers.")
 
     deployment = {
         "apiVersion": "apps/v1",
