@@ -1,6 +1,4 @@
-
 import yaml
-
 
 def generate(data):
     name = data.get('name')
